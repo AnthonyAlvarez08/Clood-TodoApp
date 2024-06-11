@@ -163,3 +163,5 @@ cython_debug/
 
 # do not put config files out on github lol
 *.ini
+*.sql
+sql_stuff/

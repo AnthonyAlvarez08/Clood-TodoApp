@@ -47,6 +47,21 @@ def heartbeat() -> dict:
 User management
 """
 
+@app.get('/api/allusers')
+def getusers():
+
+    """
+    Function that exists purely to test database access
+    
+    """
+    try:
+        
+        sql = 'select * from users;'
+        rows = DBWrapper.retrieve_all_rows(dbConn, sql, [])
+
+        return {'status': "success", 'users': rows}, 200
+    except Exception as ex:
+        return {'error': str(ex.with_traceback)}, 400
 
 # create user
 
@@ -65,24 +80,25 @@ item list management
 """
 
 # create new task
-@app.post('/newtask')
+@app.post('/api/newtask')
 def newtask():
 
 
     # will not work because I haven't set up the database yet lol
 
     try:
-        title = request.values['task_title']
-        description = request.values['description']
+        title = request.values['title']
+        details = request.values['details']
         due_date = request.values['due_date']
         repeats = request.values['repeats']
+        userid = request.values['userid']
         
 
-        sql = 'instert into tasks (userid, task_title, description, due_date, repeats) values (%s, %s, %s, %s, %s)';
+        sql = 'instert into tasks (userid, task_title, details, due_date, repeats) values (%s, %s, %s, %s, %s)';
 
 
         res = DBWrapper.perform_action(dbConn, sql, 
-            [userid, title, description, due_date, repeats])
+            [userid, title, details, due_date, repeats])
 
 
 
@@ -92,7 +108,7 @@ def newtask():
         taskid = row[0]
 
 
-        return {'status': success, 'taskid': taskid}, 200
+        return {'status': "success", 'taskid': taskid}, 200
     except Exception as ex:
         return {'error': str(ex.with_traceback)}, 400
 
@@ -110,5 +126,5 @@ def newtask():
 
 
 if __name__ == '__main__':
-    # dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
+    dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
     app.run(host=config.HOST, port=config.PORT, debug=True)
