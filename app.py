@@ -2,6 +2,7 @@ from flask import Flask, render_template, url_for, request
 import config
 import boto3
 import DBWrapper
+import auth
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = config.SECRET_KEY
@@ -26,6 +27,11 @@ def signin() -> str:
     return render_template('signin.html')
 
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup() -> str:
+    return render_template('signup.html')
+
+
 
 @app.route('/taskview')
 def taskview() -> str:
@@ -48,7 +54,7 @@ User management
 """
 
 @app.get('/api/allusers')
-def getusers():
+def getusers() -> dict:
 
     """
     Function that exists purely to test database access
@@ -64,7 +70,39 @@ def getusers():
         return {'error': str(ex.with_traceback)}, 400
 
 # create user
+@app.post('/api/createuser')
+def createuser() -> dict:
+     # will not work because I haven't set up the database yet lol
 
+    try:
+        email = request.values['email']
+        lastname = request.values['lastname']
+        firstname = request.values['firstname']
+        pwd = request.values['password']
+        pwd = auth.hash_password(pwd)
+
+
+        # TODO: check that there is no user with this email already
+
+        sql = 'insert into users (email, lastname, firstname, pwdhash) values (%s, %s, %s, %s)';
+
+
+        res = DBWrapper.perform_action(dbConn, sql, 
+            [email, lastname, firstname, pwd])
+        
+        pwd = None
+
+
+
+        # get the task id of the thing
+        sql = "SELECT LAST_INSERT_ID();"
+        row = DBWrapper.retrieve_one_row(dbConn, sql)
+        userid = row[0]
+
+
+        return {'status': "success", 'userid': userid}, 200
+    except Exception as ex:
+        return {'error': str(ex.with_traceback)}, 400
 
 # delete user
 
@@ -94,7 +132,7 @@ def newtask():
         userid = request.values['userid']
         
 
-        sql = 'instert into tasks (userid, task_title, details, due_date, repeats) values (%s, %s, %s, %s, %s)';
+        sql = 'insert into tasks (userid, task_title, details, due_date, repeats) values (%s, %s, %s, %s, %s)';
 
 
         res = DBWrapper.perform_action(dbConn, sql, 
