@@ -2,6 +2,8 @@ from configparser import ConfigParser
 import os
 
 # define the port and host just incase I change it in the future, for now localhost 5000
+
+# TODO: for deployment change host to 0.0.0.0
 HOST = '127.0.0.1'
 PORT = 5000
 SECRET_KEY = 'fdasf'
