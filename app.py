@@ -221,5 +221,5 @@ def deletetask(taskid : int) -> dict:
 
 
 if __name__ == '__main__':
-    dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
+    # dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
     app.run(host=config.HOST, port=config.PORT, debug=True)

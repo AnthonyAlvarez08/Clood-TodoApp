@@ -10,8 +10,18 @@
 
 <nav>
 
-	<a href="{{ url_for('signup') }}">sign up</a>
 
+	<a href = "{{ url_for('signin') }}">
+	
+		<button>Sign In</button>
+
+	</a>
+
+	<a href = "{{ url_for('signup') }}">
+	
+		<button>Sign Up</button>
+
+	</a>
 
 </nav>
 
@@ -25,10 +35,6 @@
 
 
 
-<a href = "{{ url_for('signin') }}">
-	
-	<button>Sign In</button>
 
-</a>
 
 </div>
