@@ -90,7 +90,7 @@ def createuser() -> dict:
 
         # TODO: check that there is no user with this email already
 
-        sql = 'insert into users (email, lastname, firstname, pwdhash) values (%s, %s, %s, %s)';
+        sql = 'insert into users (email, lastname, firstname, pwdhash) values (%s, %s, %s, %s);'
 
 
         res = DBWrapper.perform_action(dbConn, sql, 
@@ -133,6 +133,15 @@ def deleteuser(userid : int) -> dict:
 
 
 # sign in
+@app.post('/api/signin/')
+def authenticate_user():
+    try:
+        email = request.values['email']
+        pwd = request.values['password']
+        raise NotImplementedError
+    except Exception as ex:
+        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
+
 
 
 # sign out
@@ -160,7 +169,7 @@ def newtask():
         # userid = request.values['userid']
         
 
-        # sql = 'insert into tasks (userid, task_title, details, due_date, repeats) values (%s, %s, %s, %s, %s)';
+        # sql = 'insert into tasks (userid, task_title, details, due_date, repeats) values (%s, %s, %s, %s, %s);'
 
 
         # res = DBWrapper.perform_action(dbConn, sql, 

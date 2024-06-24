@@ -7,6 +7,24 @@ else:
 	import data.DBWrapper as DBWrapper
 
 class User:
+	"""
+	Represents a user in the database
+
+	Here is the table schema
+	CREATE TABLE users (
+	userid       int not null AUTO_INCREMENT,
+	email        varchar(128) not null,
+	lastname     varchar(64) not null,
+	firstname    varchar(64) not null,
+	pwdhash      varchar(256) not null,
+	PRIMARY KEY (userid),
+	UNIQUE      (email)
+	);
+
+	"""
+
+
+
 	userid : int
 	email : str
 	lastname : str
@@ -14,15 +32,20 @@ class User:
 	pwdhash : str
 
 
+
 	def __init__(self, email : str, pwdhash : str, lastname : str, firstname: str):
-		self.email = email,
+		self.email = email
 		self.pwdhash = pwdhash
 		self.lastname = lastname
 		self.firstname = firstname
 		self.userid = 0
 
 
-	@classmethod
+	def __repr__(self) -> str:
+		return f'{self.email}: {self.lastname}, {self.firstname}'
+
+
+	@staticmethod
 	def Upsert(dbConn, user):
 		"""
 		Either updates given user in the database if it exists
@@ -31,36 +54,85 @@ class User:
 		Parameters
 		----------
 		user : user object to put in the databse
+
+		Returns
+		----------
+		updated user object
 		
   		"""
 
 
 		# find if user exists in the database
-		temp = User.GetUserByEmail(user.email)
+		temp = User.GetUserByEmail(dbConn, user.email)
 
 		if temp == None:
 			# means we have to insert
-			pass
+			sql = 'INSERT INTO users (email, lastname, firstname, pwdhash) VALUES (%s, %s, %s, %s);'
+
+
+			res = DBWrapper.perform_action(dbConn, sql, [user.email, user.lastname, user.firstname, user.pwdhash])
+        
+
+        	# get the task id of the thing
+			sql = "SELECT LAST_INSERT_ID();"
+			row = DBWrapper.retrieve_one_row(dbConn, sql)
+			userid = row[0]
+
+			user.userid = userid
+
+			return user
 		else:
 			# means we have to update
 			pass
 
-	@classmethod
-	def GetUserByEmail(self, email: str):
+	@staticmethod
+	def GetUserByEmail(dbConn, email):
 		"""
 		tries to find a user in the database by their email
 
 		Parameters
 		----------
-		email : returns the email of the user
+		email : the email of the user you want to find
 		
 		Returns
 		-------
 		User object with the matching user if it exits
 		returns None otherwise 
   		"""
+		try:
+			sql = 'SELECT * FROM users WHERE email= %s'
+			row = DBWrapper.retrieve_one_row(dbConn, sql, [email])
+
+			if len(row) == 0:
+				return None
+
+			userid, email, lastname, firstname, pwdhash = row
 
 
-		sql = 'SELECT * FROM users WHERE email= %s'
-		row = DBWrapper.retrieve_one_row(dbConn, sql, [user.email])
+			res = User(email, pwdhash, lastname, firstname)
+			res.userid = userid
+
+			return res
+		except Exception as ex:
+			return None
+
+
+	@staticmethod
+	def DeleteUserByID(dbConn, userid):
+		try:
+			sql = 'DELETE FROM users WHERE userid = %s'
+
+			res = DBWrapper.perform_action(dbConn, sql, [userid])
+		except:
+			return
+
+	@staticmethod
+	def DeleteUserByEmail(dbConn, email):
+		try:
+			sql = 'DELETE FROM users WHERE email = %s'
+
+			res = DBWrapper.perform_action(dbConn, sql, [email])
+		except:
+			return
+
 
