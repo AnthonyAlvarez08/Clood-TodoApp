@@ -1,7 +1,7 @@
 from flask import Flask, render_template, url_for, request
 import config
 import boto3
-import DBWrapper
+import data.DBWrapper as DBWrapper
 import auth
 from data.task import Task
 from data.user import User
@@ -9,8 +9,6 @@ from data.user import User
 app = Flask(__name__)
 app.config['SECRET_KEY'] = config.SECRET_KEY
 dbConn = None
-
-
 
 
 
@@ -98,6 +96,8 @@ def createuser() -> dict:
         res = DBWrapper.perform_action(dbConn, sql, 
             [email, lastname, firstname, pwd])
         
+
+        # clear the password stuff
         pwd = None
 
 
@@ -116,15 +116,17 @@ def createuser() -> dict:
 @app.post('/api/deleteuser/<userid>')
 def deleteuser(userid : int) -> dict:
     try:
-        userid = int(userid)
+
+        raise NotImplementedError
+        # userid = int(userid)
 
 
-        sql = 'delete from users where userid = %s'
+        # sql = 'delete from users where userid = %s'
 
-        res = DBWrapper.perform_action(dbConn, sql, 
-            [userid])
+        # res = DBWrapper.perform_action(dbConn, sql, 
+        #     [userid])
 
-        return {'status': 'success'}, 200
+        # return {'status': 'success'}, 200
 
     except Exception as ex:
         return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
@@ -148,25 +150,28 @@ def newtask():
     # will not work because I haven't set up the database yet lol
 
     try:
-        title = request.values['title']
-        details = request.values['details']
-        due_date = request.values['due_date']
-        repeats = request.values['repeats']
-        userid = request.values['userid']
+
+        raise NotImplementedError
+
+        # title = request.values['title']
+        # details = request.values['details']
+        # due_date = request.values['due_date']
+        # repeats = request.values['repeats']
+        # userid = request.values['userid']
         
 
-        sql = 'insert into tasks (userid, task_title, details, due_date, repeats) values (%s, %s, %s, %s, %s)';
+        # sql = 'insert into tasks (userid, task_title, details, due_date, repeats) values (%s, %s, %s, %s, %s)';
 
 
-        res = DBWrapper.perform_action(dbConn, sql, 
-            [userid, title, details, due_date, repeats])
+        # res = DBWrapper.perform_action(dbConn, sql, 
+        #     [userid, title, details, due_date, repeats])
 
 
 
-        # get the task id of the thing
-        sql = "SELECT LAST_INSERT_ID();"
-        row = DBWrapper.retrieve_one_row(dbConn, sql)
-        taskid = row[0]
+        # # get the task id of the thing
+        # sql = "SELECT LAST_INSERT_ID();"
+        # row = DBWrapper.retrieve_one_row(dbConn, sql)
+        # taskid = row[0]
 
 
         return {'status': "success", 'taskid': taskid}, 200
@@ -179,35 +184,36 @@ def newtask():
 @app.get('/api/gettasks/<userid>')
 def gettasks(userid):
     try:
-        userid = int(userid)
-        sql = 'select * from tasks where userid = %s;'
-        rows = DBWrapper.retrieve_all_rows(dbConn, sql, [userid])
 
-        return {'status': "success", 'tasks': rows}, 200
+        raise NotImplementedError
+        # userid = int(userid)
+        # sql = 'select * from tasks where userid = %s;'
+        # rows = DBWrapper.retrieve_all_rows(dbConn, sql, [userid])
+
+        # return {'status': "success", 'tasks': rows}, 200
     except Exception as ex:
         return {'error': str(ex.with_traceback)}, 400
 
 
-# delete taks(s)
+# delete task(s)
 @app.post('/api/deletetask/<taskid>')
 def deletetask(taskid : int) -> dict:
 
-
-    # will not work because I haven't set up the database yet lol
-
     try:
 
-        taskid = int(taskid)
-        userid = request.values['userid']
+        raise NotImplementedError
+
+        # taskid = int(taskid)
+        # userid = request.values['userid']
         
 
-        sql = 'delete from task where taskid = %s'
+        # sql = 'delete from task where taskid = %s'
 
-        res = DBWrapper.perform_action(dbConn, sql, 
-            [taskid])
+        # res = DBWrapper.perform_action(dbConn, sql, 
+        #     [taskid])
 
 
-        return {'status': "success"}, 200
+        # return {'status': "success"}, 200
     except Exception as ex:
         return {'error': str(ex.with_traceback)}, 400
 

@@ -2,3 +2,7 @@ flask
 boto3
 pymysql
 bcrypt
+
+# for testing purposes
+pytest
+requests
