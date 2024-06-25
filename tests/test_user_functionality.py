@@ -1,4 +1,3 @@
-import requests
 import random
 import config
 from data.user import User
@@ -27,11 +26,9 @@ def test_fetching_user():
 
 def test_user_creation_internal():
 	dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
-	alphabet = 'qwertyuiopasdfghjklzxcvbnm'
 	temp_user = User(random_string(5) + '@' + random_string(4) + '.com', auth.hash_password(random_string(15)) , 'lastanme', 'firstname')
 
 	User.Upsert(dbConn, temp_user)
-
 	back = User.GetUserByEmail(dbConn, temp_user.email)
 
 	assert back != None, "Could not find user"
@@ -40,15 +37,47 @@ def test_user_creation_internal():
 
 
 
-def test_user_creation_api():
-	pass
-
-
-def test_user_auth():
-	pass
-
-
-
 
 def test_user_deletetion():
-	pass
+	
+	dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
+	
+	# first create a user
+	temp_user = User(random_string(5) + '@' + random_string(4) + '.com', auth.hash_password(random_string(15)) , 'lastanme', 'firstname')
+	User.Upsert(dbConn, temp_user)
+	back = User.GetUserByEmail(dbConn, temp_user.email)
+
+	assert back != None, "Could not create user properly"
+
+	# then try to delete it
+	User.DeleteUserByEmail(dbConn, temp_user.email)
+
+
+	# try to get it and assert that it is in fact none
+	back = User.GetUserByEmail(dbConn, temp_user.email)
+
+	assert back == None, "user still exists"
+
+
+def test_user_edit():
+	dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
+	
+	# first create a user
+	temp_user = User(random_string(5) + '@' + random_string(4) + '.com', auth.hash_password(random_string(15)) , 'lastanme', 'firstname')
+	User.Upsert(dbConn, temp_user)
+	back = User.GetUserByEmail(dbConn, temp_user.email)
+
+	assert back != None, "Could not create user properly"
+	assert back.firstname == "firstname"
+	assert back.lastname == "lastanme"
+
+	TEST_NAME = "Edited Editedson"
+
+	back.firstname = TEST_NAME
+	back.lastname = TEST_NAME
+
+	back = User.Upsert(dbConn, back)
+
+	assert back != None, "Could not create user properly"
+	assert back.firstname == TEST_NAME, "name not updated"
+	assert back.lastname == TEST_NAME, "name not updated"

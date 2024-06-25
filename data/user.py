@@ -22,9 +22,6 @@ class User:
 	);
 
 	"""
-
-
-
 	userid : int
 	email : str
 	lastname : str
@@ -46,10 +43,12 @@ class User:
 
 
 	@staticmethod
-	def Upsert(dbConn, user):
+	def Upsert(dbConn, user : "User") -> "User":
 		"""
 		Either updates given user in the database if it exists
 		or it inserts a new user in the database
+
+		update will not change neither email nor userid
 
 		Parameters
 		----------
@@ -65,7 +64,7 @@ class User:
 		# find if user exists in the database
 		temp = User.GetUserByEmail(dbConn, user.email)
 
-		if temp == None:
+		if temp == None or temp.userid == 0:
 			# means we have to insert
 			sql = 'INSERT INTO users (email, lastname, firstname, pwdhash) VALUES (%s, %s, %s, %s);'
 
@@ -83,10 +82,17 @@ class User:
 			return user
 		else:
 			# means we have to update
-			pass
+
+			sql = 'UPDATE users SET lastname = %s, firstname = %s, pwdhash = %s WHERE userid = %s;'
+			res = DBWrapper.perform_action(dbConn, sql, [user.lastname, user.firstname, user.pwdhash, user.userid])
+
+			edited_user = User.GetUserByEmail(dbConn, user.email)
+			return edited_user
+
+			
 
 	@staticmethod
-	def GetUserByEmail(dbConn, email):
+	def GetUserByEmail(dbConn, email : str) -> "User":
 		"""
 		tries to find a user in the database by their email
 
@@ -118,7 +124,15 @@ class User:
 
 
 	@staticmethod
-	def DeleteUserByID(dbConn, userid):
+	def DeleteUserByID(dbConn, userid : int):
+		"""
+		Deletes specified user
+
+		Parameters
+		----------
+		dbConn	: database connection
+		user 	: user object to put in the databse
+		"""
 		try:
 			sql = 'DELETE FROM users WHERE userid = %s'
 
@@ -127,7 +141,15 @@ class User:
 			return
 
 	@staticmethod
-	def DeleteUserByEmail(dbConn, email):
+	def DeleteUserByEmail(dbConn, email : int):
+		"""
+		Deletes specified user
+
+		Parameters
+		----------
+		dbConn	: database connection
+		user 	: user object to put in the databse
+		"""
 		try:
 			sql = 'DELETE FROM users WHERE email = %s'
 
