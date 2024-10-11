@@ -1,0 +1,45 @@
+
+<script>
+
+    var counter = 0;
+    
+
+    function reload()
+    {
+        var ls = document.getElementById('tasklist');
+        ls.innerHTML += `<li> wahoo #${counter} </li>`;
+        counter++
+
+    }
+
+    function reset()
+    {
+        var ls = document.getElementById('tasklist');
+        counter = 0;
+        ls.innerHTML = `<li> wahoo #${counter} </li>`;
+    }
+
+    async function load()
+    {
+        var a = await fetch("https://t5k.org/primes/lists/all.txt");
+        var wahoo = document.getElementById('wahoo');
+
+        wahoo.innerHTML += a.body;
+
+    }
+
+</script>
+
+<button onclick="reload()">Refresh</button>
+
+<button onclick="reset()">Reset</button>
+
+<button onclick="load()">Load primes</button>
+
+
+<ul id="tasklist">
+
+</ul>
+
+<div id="wahoo"></div>
+
