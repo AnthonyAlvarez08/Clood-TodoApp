@@ -10,17 +10,6 @@ class User:
 	"""
 	Represents a user in the database
 
-	Here is the table schema
-	CREATE TABLE users (
-	userid       int not null AUTO_INCREMENT,
-	email        varchar(128) not null,
-	lastname     varchar(64) not null,
-	firstname    varchar(64) not null,
-	pwdhash      varchar(256) not null,
-	PRIMARY KEY (userid),
-	UNIQUE      (email)
-	);
-
 	"""
 	userid : int
 	email : str
