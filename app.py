@@ -8,7 +8,8 @@ from data.user import User
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = config.SECRET_KEY
-dbConn = None
+dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName) # None
+# dbConn = None
 
 
 
@@ -68,12 +69,12 @@ def getusers() -> dict:
     """
     try:
         
-        sql = 'select * from users;'
+        sql = 'select email, firstname from users;'
         rows = DBWrapper.retrieve_all_rows(dbConn, sql, [])
 
         return {'status': "success", 'users': rows}, 200
     except Exception as ex:
-        return {'error': str(ex.with_traceback)}, 400
+        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
 
 # create user
 @app.post('/api/createuser')
@@ -95,7 +96,7 @@ def createuser() -> dict:
 
         return {'status': "success", 'userid': created.userid}, 200
     except Exception as ex:
-        return {'error': str(ex.with_traceback)}, 400
+        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
 
 # delete user
 @app.post('/api/deleteuser/<userid>')
@@ -157,7 +158,7 @@ def newtask():
 
         return {'status': "success", 'taskid': res.taskid}, 200
     except Exception as ex:
-        return {'error': str(ex.with_traceback)}, 400
+        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
 
 
 
@@ -173,7 +174,7 @@ def gettasks(userid):
 
         return {'status': "success", 'tasks': [str(i) for i in rows]}, 200
     except Exception as ex:
-        return {'error': str(ex.with_traceback)}, 400
+        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
 
 
 # delete task(s)
@@ -190,7 +191,7 @@ def deletetask(taskid : int) -> dict:
 
         return {'status': "success"}, 200
     except Exception as ex:
-        return {'error': str(ex.with_traceback)}, 400
+        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
 
 
 # complete task(s)
@@ -202,5 +203,5 @@ def deletetask(taskid : int) -> dict:
 
 
 if __name__ == '__main__':
-    dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
+    # dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
     app.run(host=config.HOST, port=config.PORT, debug=True)

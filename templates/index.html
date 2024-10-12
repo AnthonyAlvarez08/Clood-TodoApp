@@ -1,40 +1,56 @@
 
-<style>
-	.centered {
-		align-content: center;
-		align-items: center;
-	}
-</style>
+<!DOCTYPE html>
+
+<html>
+
+	<head>
 
 
 
-<nav>
+		<style>
+			.centered {
+				align-content: center;
+				align-items: center;
+			}
+		</style>
+	</head>
 
 
-	<a href = "{{ url_for('signin') }}">
-	
-		<button>Sign In</button>
+	<body>
 
-	</a>
+		
+		<nav>
+		
+		
+			<a href = "{{ url_for('signin') }}">
+			
+				<button>Sign In</button>
+		
+			</a>
+		
+			<a href = "{{ url_for('signup') }}">
+			
+				<button>Sign Up</button>
+		
+			</a>
+		
+		</nav>
+		
+		<div class="centered">
+			
+		
+			<h1>Todo App</h1>
+			<p>By Anthony Alvarez</p>
+			<p>Made with Python and Flask, hosted on AWS</p>
+		
+		
+		</div>
 
-	<a href = "{{ url_for('signup') }}">
-	
-		<button>Sign Up</button>
+	</body>
 
-	</a>
 
-</nav>
-
-<div class="centered">
-	
-
-<h1>Todo App</h1>
-<p>By Anthony Alvarez</p>
-<p>Made with Python and Flask, hosted on AWS</p>
+</html>
 
 
 
 
-
-
-</div>
