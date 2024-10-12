@@ -1,10 +1,11 @@
 from flask import Flask, render_template, url_for, request, make_response, redirect
 import boto3
-
+import json
 
 # utility imports
 import config
 import auth
+import utils.ParsersAndFinicky as pf
 
 # data imports
 import data.DBWrapper as DBWrapper
@@ -53,9 +54,6 @@ def home() -> str:
 
 @app.route('/signin', methods=['GET', 'POST'])
 def signin() -> str:
-
-    if request.method == 'POST':
-        res = make_response()
 
     return render_template('signin.html')
 
@@ -112,11 +110,15 @@ def createuser() -> dict:
 
     try:
 
+
+        data = pf.parse_request_data(request)
+
+
         # I do want it to crash if it doesn't containe these fields so it is fine to do dict index
-        email = request.values['email']
-        lastname = request.values['lastname']
-        firstname = request.values['firstname']
-        pwd = request.values['password']
+        email = data['email']
+        lastname = data['lastname']
+        firstname = data['firstname']
+        pwd = data['password']
         pwd = auth.hash_password(pwd)
 
 
@@ -148,8 +150,11 @@ def deleteuser(userid : int) -> dict:
 @app.post('/api/signin/')
 def sign_in():
     try:
-        email = request.values['email']
-        pwd = request.values['password']
+
+        data = pf.parse_request_data(request)
+
+        email = data['email']
+        pwd = data['password']
         raise NotImplementedError
     except Exception as ex:
         return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
