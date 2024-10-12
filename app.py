@@ -88,27 +88,12 @@ def createuser() -> dict:
         pwd = auth.hash_password(pwd)
 
 
-        # TODO: check that there is no user with this email already
+        temp_usr = User(email, pwd, lastname, firstname)
 
-        sql = 'insert into users (email, lastname, firstname, pwdhash) values (%s, %s, %s, %s);'
-
-
-        res = DBWrapper.perform_action(dbConn, sql, 
-            [email, lastname, firstname, pwd])
-        
-
-        # clear the password stuff
-        pwd = None
+        created = User.Upsert(dbConn, temp_usr)
 
 
-
-        # get the task id of the thing
-        sql = "SELECT LAST_INSERT_ID();"
-        row = DBWrapper.retrieve_one_row(dbConn, sql)
-        userid = row[0]
-
-
-        return {'status': "success", 'userid': userid}, 200
+        return {'status': "success", 'userid': created.userid}, 200
     except Exception as ex:
         return {'error': str(ex.with_traceback)}, 400
 
@@ -117,16 +102,11 @@ def createuser() -> dict:
 def deleteuser(userid : int) -> dict:
     try:
 
-        raise NotImplementedError
-        # userid = int(userid)
+        userid = int(userid)
 
+        User.DeleteUserByID(userid)
 
-        # sql = 'delete from users where userid = %s'
-
-        # res = DBWrapper.perform_action(dbConn, sql, 
-        #     [userid])
-
-        # return {'status': 'success'}, 200
+        return {'status': 'success'}, 200
 
     except Exception as ex:
         return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
@@ -155,35 +135,27 @@ item list management
 @app.post('/api/newtask')
 def newtask():
 
-
-    # will not work because I haven't set up the database yet lol
-
     try:
 
-        raise NotImplementedError
-
-        # title = request.values['title']
-        # details = request.values['details']
-        # due_date = request.values['due_date']
-        # repeats = request.values['repeats']
-        # userid = request.values['userid']
+        title = request.values['title']
+        details = request.values['details']
+        due_date = request.values['due_date']
+        repeats = request.values['repeats']
+        priority = request.values['priority']
+        userid = request.values['userid']
         
 
-        # sql = 'insert into tasks (userid, task_title, details, due_date, repeats) values (%s, %s, %s, %s, %s);'
+        temp = Task(title, userid)
+        temp.details = details
+        temp.due_date = due_date
+        temp.repeats = repeats
+        temp.priority = priority
+
+        res = Task.Upsert(dbConn, temp)
+        
 
 
-        # res = DBWrapper.perform_action(dbConn, sql, 
-        #     [userid, title, details, due_date, repeats])
-
-
-
-        # # get the task id of the thing
-        # sql = "SELECT LAST_INSERT_ID();"
-        # row = DBWrapper.retrieve_one_row(dbConn, sql)
-        # taskid = row[0]
-
-
-        return {'status': "success", 'taskid': taskid}, 200
+        return {'status': "success", 'taskid': res.taskid}, 200
     except Exception as ex:
         return {'error': str(ex.with_traceback)}, 400
 
@@ -194,12 +166,12 @@ def newtask():
 def gettasks(userid):
     try:
 
-        raise NotImplementedError
-        # userid = int(userid)
-        # sql = 'select * from tasks where userid = %s;'
-        # rows = DBWrapper.retrieve_all_rows(dbConn, sql, [userid])
+        # raise NotImplementedError
+        userid = int(userid)
+        rows = Task.GetOneUsersTask(dbConn, userid)
+        # print(rows)
 
-        # return {'status': "success", 'tasks': rows}, 200
+        return {'status': "success", 'tasks': [str(i) for i in rows]}, 200
     except Exception as ex:
         return {'error': str(ex.with_traceback)}, 400
 
@@ -210,19 +182,13 @@ def deletetask(taskid : int) -> dict:
 
     try:
 
-        raise NotImplementedError
-
-        # taskid = int(taskid)
+        taskid = int(taskid)
         # userid = request.values['userid']
         
 
-        # sql = 'delete from task where taskid = %s'
+        Task.DeleteTaskByID(dbConn, taskid)
 
-        # res = DBWrapper.perform_action(dbConn, sql, 
-        #     [taskid])
-
-
-        # return {'status': "success"}, 200
+        return {'status': "success"}, 200
     except Exception as ex:
         return {'error': str(ex.with_traceback)}, 400
 
@@ -236,5 +202,5 @@ def deletetask(taskid : int) -> dict:
 
 
 if __name__ == '__main__':
-    # dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
+    dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
     app.run(host=config.HOST, port=config.PORT, debug=True)
