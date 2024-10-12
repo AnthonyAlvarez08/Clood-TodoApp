@@ -4,12 +4,6 @@ from data.user import User
 import data.DBWrapper as DBWrapper
 import auth
 
-"""
-TODO: actually write the unit tests
-
-
-"""
-
 
 def random_string(num_letters: int) -> str:
 	alphabet = 'qwertyuiopasdfghjklzxcvbnm'
@@ -76,8 +70,10 @@ def test_user_edit():
 	back.firstname = TEST_NAME
 	back.lastname = TEST_NAME
 
-	back = User.Upsert(dbConn, back)
+	newer = User.Upsert(dbConn, back)
 
-	assert back != None, "Could not create user properly"
-	assert back.firstname == TEST_NAME, "name not updated"
-	assert back.lastname == TEST_NAME, "name not updated"
+	assert newer != None, "Could not fetch user properly"
+	assert newer.firstname == TEST_NAME, "name not updated"
+	assert newer.lastname == TEST_NAME, "name not updated"
+	assert newer.userid == back.userid
+	assert newer.email == temp_user.email

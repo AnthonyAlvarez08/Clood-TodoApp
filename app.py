@@ -1,8 +1,13 @@
-from flask import Flask, render_template, url_for, request
-import config
+from flask import Flask, render_template, url_for, request, make_response, redirect
 import boto3
-import data.DBWrapper as DBWrapper
+
+
+# utility imports
+import config
 import auth
+
+# data imports
+import data.DBWrapper as DBWrapper
 from data.task import Task
 from data.user import User
 
@@ -11,6 +16,26 @@ app.config['SECRET_KEY'] = config.SECRET_KEY
 dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName) # None
 # dbConn = None
 
+
+
+"""
+
+there's gotta be a better way to organize this right?
+
+TODO: actual authentication, temporarily just use cookies for now
+
+https://www.pythonlore.com/sending-responses-in-flask-with-response-objects/ 
+https://vivekmolkar.com/posts/working-with-flasks-request-and-response-objects/
+https://tedboy.github.io/flask/generated/generated/flask.Response.html
+
+
+here is some stuff on testing webservers locally
+https://flask.palletsprojects.com/en/2.3.x/testing/
+https://testdriven.io/blog/flask-pytest/
+
+
+
+"""
 
 
 """
@@ -28,6 +53,10 @@ def home() -> str:
 
 @app.route('/signin', methods=['GET', 'POST'])
 def signin() -> str:
+
+    if request.method == 'POST':
+        res = make_response()
+
     return render_template('signin.html')
 
 
@@ -82,6 +111,8 @@ def createuser() -> dict:
      # will not work because I haven't set up the database yet lol
 
     try:
+
+        # I do want it to crash if it doesn't containe these fields so it is fine to do dict index
         email = request.values['email']
         lastname = request.values['lastname']
         firstname = request.values['firstname']
@@ -115,7 +146,7 @@ def deleteuser(userid : int) -> dict:
 
 # sign in
 @app.post('/api/signin/')
-def authenticate_user():
+def sign_in():
     try:
         email = request.values['email']
         pwd = request.values['password']
@@ -133,17 +164,18 @@ item list management
 """
 
 # create new task
-@app.post('/api/newtask')
-def newtask():
+@app.post('/api/newtask/<userid>')
+def newtask(userid):
 
     try:
 
         title = request.values['title']
-        details = request.values['details']
-        due_date = request.values['due_date']
-        repeats = request.values['repeats']
-        priority = request.values['priority']
-        userid = request.values['userid']
+        details = request.values.get('details')
+        due_date = request.values.get('due_date')
+        repeats = request.values.get('repeats')
+        priority = request.values.get('priority')
+        # userid = request.values['userid']
+        userid = int(userid)
         
 
         temp = Task(title, userid)
