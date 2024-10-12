@@ -1,10 +1,12 @@
 
 if __name__ == '__main__':
 	import DBWrapper
+	from user import User
 else:
 	# ran into some testing shennanigans
 	# have to import it like this since it is called from the main file
 	import data.DBWrapper as DBWrapper
+	from data.user import User
 
 class Task:
 	taskid : int
@@ -20,7 +22,7 @@ class Task:
 	def __init__(self, title : str, userid : int):
 		self.userid = userid
 		self.title = title
-		
+		self.taskid = 0
 		self.details = ''
 		self.due_date = ''
 		self.repeats = ''
@@ -50,41 +52,60 @@ class Task:
 		
   		"""
 
-		return None
 
 
 		# find if user exists in the database
 		temp = Task.GetTaskById(dbConn, task.taskid)
 
-		if temp == None or temp.userid == 0:
+		if task.userid == 0:
+			raise Exception('Task must be attached to user')
+
+		if temp == None:
 			# means we have to insert
-			sql = 'INSERT INTO users (email, lastname, firstname, pwdhash) VALUES (%s, %s, %s, %s);'
+			sql = 'INSERT INTO tasks (userid, title, details, due_date, repeats, priority, progress) VALUES (%s, %s, %s, %s, %s, %s, %s);'
 
 
-			res = DBWrapper.perform_action(dbConn, sql, [user.email, user.lastname, user.firstname, user.pwdhash])
+			res = DBWrapper.perform_action(dbConn, sql, [
+				task.userid,
+				task.title,
+				task.details,  
+				task.due_date,
+				task.repeats,
+				task.priority,
+				task.progress
+				
+			])
         
 
         	# get the task id of the thing
 			sql = "SELECT LAST_INSERT_ID();"
 			row = DBWrapper.retrieve_one_row(dbConn, sql)
-			userid = row[0]
+			taskid = row[0]
 
-			task.userid = userid
+			task.taskid = taskid
 
 			return task
 		else:
 			# means we have to update
 
-			sql = 'UPDATE users SET lastname = %s, firstname = %s, pwdhash = %s WHERE userid = %s;'
-			res = DBWrapper.perform_action(dbConn, sql, [user.lastname, user.firstname, user.pwdhash, user.userid])
+			sql = 'UPDATE tasks SET title = %s, details = %s, due_date = %s, repeats = %s, priority = %s, progress = %s WHERE taskid = %s;'
+			res = DBWrapper.perform_action(dbConn, sql, [
+				task.title,
+				task.details,  
+				task.due_date,
+				task.repeats,
+				task.priority,
+				task.progress,
+				task.taskid
+			])
 
-			edited_user = Task.GetUserById(dbConn, task.taskid)
-			return edited_user
+			edited_task = Task.GetTaskById(dbConn, task.taskid)
+			return edited_task
 
 			
 
 	@staticmethod
-	def GetTaskById(dbConn, taskid : int, userid : int) -> "Task":
+	def GetTaskById(dbConn, taskid : int) -> "Task":
 		"""
 		tries to find a user in the database by their email
 
@@ -100,8 +121,8 @@ class Task:
   		"""
 
 
-		# either of these being = 0 means it doesn't exist
-		if 0 in [taskid, userid]:
+		#  being = 0 means it doesn't exist
+		if 0 == taskid:
 			return None
 
 		try:
@@ -145,3 +166,47 @@ class Task:
 		except Exception as ex:
 			print(str(ex))
 			return
+
+
+	@staticmethod
+	def GetOneUsersTask(dbConn, userid : int) -> list['Task']:
+		"""
+		Deletes specified user
+
+		Parameters
+		----------
+		dbConn	: database connection
+		user 	: user whose tasks we're retrieving
+
+
+		Returns
+		----------
+		list of task objects that belong to the user
+		"""
+
+		try:
+			sql = 'SELECT * FROM tasks WHERE userid= %s'
+			rows = DBWrapper.retrieve_all_rows(dbConn, sql, [userid])
+
+			res = []
+
+			for row in rows:
+
+				taskid, userid, title, details, due_date, repeats, priority, progress = row
+
+
+				tmp = Task(title, userid)
+				tmp.taskid = taskid
+				tmp.details = details
+				tmp.due_date = str(due_date)
+				tmp.repeats = repeats
+				tmp.priority = priority
+				tmp.progress = progress
+
+				res.append(tmp)
+
+			return res
+
+		except Exception as ex:
+			print(str(ex))
+			return []
