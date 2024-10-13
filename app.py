@@ -247,15 +247,36 @@ def deletetask(taskid : int) -> dict:
     except Exception as ex:
         return {'error': str(ex)}, 400
 
-
-# complete task(s)
-
-
-
 # edit task
-# basically just delete and reinsert lol
+@app.post('/api/edittask/<int:userid>/<int:taskid>')
+def edittask(userid : int, taskid : int):
+
+    try:
+
+        data = pf.parse_request_data(request)
+
+        title = data['title']
+        details = data.get('details', '')
+        due_date = data.get('due_date', '2100-01-01')
+        repeats = data.get('repeats', '')
+        priority = data.get('priority', 0)
+        userid = int(userid)
+        
+
+        temp = Task(title, userid)
+        temp.details = details
+        temp.due_date = due_date
+        temp.repeats = repeats
+        temp.priority = priority
+        temp.taskid = int(taskid)
+
+        res = Task.Upsert(dbConn, temp)
+        
+        return {'status': "success", 'taskid': res.taskid}, 200
+    except Exception as ex:
+        return {'error': str(ex)}, 400
+
 
 
 if __name__ == '__main__':
-    # dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, config.dbPass, config.dbName)
     app.run(host=config.HOST, port=config.PORT, debug=True)
