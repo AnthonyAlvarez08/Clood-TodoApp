@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, make_response, redirect
+from flask import Flask, render_template, url_for, request, make_response, redirect, Blueprint
 import boto3
 import json
 
@@ -24,15 +24,22 @@ dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, 
 there's gotta be a better way to organize this right?
 
 TODO: actual authentication, temporarily just use cookies for now
+TODO: update database so that there is only unique emails
 
 https://www.pythonlore.com/sending-responses-in-flask-with-response-objects/ 
 https://vivekmolkar.com/posts/working-with-flasks-request-and-response-objects/
 https://tedboy.github.io/flask/generated/generated/flask.Response.html
 
 
-here is some stuff on testing webservers locally
-https://flask.palletsprojects.com/en/2.3.x/testing/
-https://testdriven.io/blog/flask-pytest/
+stuff about authentication in flask
+https://www.digitalocean.com/community/tutorials/how-to-add-authentication-to-your-app-with-flask-login
+https://www.freecodecamp.org/news/how-to-setup-user-authentication-in-flask/ 
+https://www.geeksforgeeks.org/how-to-add-authentication-to-your-app-with-flask-login/
+
+here is how we did it in cs310
+file:///C:/Users/antho/school/northwestern/02_sophomore_year/spring/CS310/projects/proj4/project04.pdf 
+
+
 
 
 
@@ -101,7 +108,7 @@ def getusers() -> dict:
 
         return {'status': "success", 'users': rows}, 200
     except Exception as ex:
-        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
+        return {'error': str(ex)}, 400
 
 # create user
 @app.post('/api/createuser')
@@ -129,10 +136,11 @@ def createuser() -> dict:
 
         return {'status': "success", 'userid': created.userid}, 200
     except Exception as ex:
-        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
+        return {'error': str(ex)}, 400
 
 # delete user
-@app.post('/api/deleteuser/<userid>')
+@app.post('/api/deleteuser/<int:userid>')
+@app.delete('/api/deleteuser/<int:userid>')
 def deleteuser(userid : int) -> dict:
     try:
 
@@ -143,7 +151,7 @@ def deleteuser(userid : int) -> dict:
         return {'status': 'success'}, 200
 
     except Exception as ex:
-        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
+        return {'error': str(ex)}, 400
 
 
 # sign in
@@ -155,9 +163,18 @@ def sign_in():
 
         email = data['email']
         pwd = data['password']
-        raise NotImplementedError
+
+        
+
+        user : User = User.GetUserByEmail(email)
+
+        if auth.check_password(pwd, user.pwdhash):
+            res = make_response({'status' : 'success'})
+            
+        else:
+            return {'status' : 'Unauthorized, couldn\'t sign in'}, 401
     except Exception as ex:
-        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
+        return {'error': str(ex)}, 400
 
 
 
@@ -169,17 +186,18 @@ item list management
 """
 
 # create new task
-@app.post('/api/newtask/<userid>')
-def newtask(userid):
+@app.post('/api/newtask/<int:userid>')
+def newtask(userid : int):
 
     try:
 
-        title = request.values['title']
-        details = request.values.get('details')
-        due_date = request.values.get('due_date')
-        repeats = request.values.get('repeats')
-        priority = request.values.get('priority')
-        # userid = request.values['userid']
+        data = pf.parse_request_data(request)
+
+        title = data['title']
+        details = data.get('details', '')
+        due_date = data.get('due_date', '2100-01-01')
+        repeats = data.get('repeats', '')
+        priority = data.get('priority', 0)
         userid = int(userid)
         
 
@@ -191,17 +209,15 @@ def newtask(userid):
 
         res = Task.Upsert(dbConn, temp)
         
-
-
         return {'status': "success", 'taskid': res.taskid}, 200
     except Exception as ex:
-        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
+        return {'error': str(ex)}, 400
 
 
 
 # get all of a user's tasks
-@app.get('/api/gettasks/<userid>')
-def gettasks(userid):
+@app.get('/api/gettasks/<int:userid>')
+def gettasks(userid : int):
     try:
 
         # raise NotImplementedError
@@ -209,13 +225,14 @@ def gettasks(userid):
         rows = Task.GetOneUsersTask(dbConn, userid)
         # print(rows)
 
-        return {'status': "success", 'tasks': [str(i) for i in rows]}, 200
+        return {'status': 'success', 'tasks': [str(i) for i in rows]}, 200
     except Exception as ex:
-        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
+        return {'error': str(ex)}, 400
 
 
 # delete task(s)
-@app.post('/api/deletetask/<taskid>')
+@app.post('/api/deletetask/<int:taskid>')
+@app.delete('/api/deletetask/<int:taskid>')
 def deletetask(taskid : int) -> dict:
 
     try:
@@ -228,7 +245,7 @@ def deletetask(taskid : int) -> dict:
 
         return {'status': "success"}, 200
     except Exception as ex:
-        return {'error': str(ex), 'with traceback': str(ex.with_traceback)}, 400
+        return {'error': str(ex)}, 400
 
 
 # complete task(s)
