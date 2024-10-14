@@ -2,6 +2,7 @@ import random
 import requests
 import config
 import json
+import os
 
 if __name__ == '__main__':
     from ServerContext import ServerContext
@@ -11,7 +12,7 @@ else:
 
 URL = f'http://{config.HOST}:{config.PORT}'
 
-VENV_EXECUTOR = r'C:\Users\antho\source\repos\TodoApp\venv\Scripts\python.exe'
+VENV_EXECUTOR = os.getcwd() + r'\venv\Scripts\python.exe'
 APP_FILE = 'app.py'
 
 def random_string(num_letters: int) -> str:
