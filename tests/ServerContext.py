@@ -1,6 +1,14 @@
 
 import subprocess
+import os
 
+# so I can work on both windows and wsl
+if os.name == 'posix':
+    VENV_EXECUTOR = os.getcwd() + r'/venv/bin/python3'
+else:
+    VENV_EXECUTOR = os.getcwd() + r'\venv\Scripts\python.exe'
+
+APP_FILE = 'app.py'
 
 class ServerContext:
     """

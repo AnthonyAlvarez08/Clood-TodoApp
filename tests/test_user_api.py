@@ -5,15 +5,18 @@ import json
 import os
 
 if __name__ == '__main__':
-    from ServerContext import ServerContext
+    from ServerContext import ServerContext, APP_FILE, VENV_EXECUTOR
 else:
-    from tests.ServerContext import ServerContext
+    from tests.ServerContext import ServerContext, APP_FILE, VENV_EXECUTOR
 
 
 URL = f'http://{config.HOST}:{config.PORT}'
 
-VENV_EXECUTOR = os.getcwd() + r'\venv\Scripts\python.exe'
-APP_FILE = 'app.py'
+
+def random_string(num_letters: int) -> str:
+	alphabet = 'qwertyuiopasdfghjklzxcvbnm'
+	return ''.join([random.choice(alphabet) for i in range(num_letters)])
+
 
 
 def test_get_some_users():
@@ -37,7 +40,7 @@ def test_create_user_success():
     with ServerContext(VENV_EXECUTOR, APP_FILE):
 
         data = json.dumps({
-            'email': 'wahoo@wahoo.com',
+            'email': random_string(5) + '@' + random_string(5) + '.com',
             'lastname': 'haha hehe',
             'firstname': 'banana soul',
             'password' : 'new super mario bros'

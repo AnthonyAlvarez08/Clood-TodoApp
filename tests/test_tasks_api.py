@@ -5,15 +5,13 @@ import json
 import os
 
 if __name__ == '__main__':
-    from ServerContext import ServerContext
+    from ServerContext import ServerContext, APP_FILE, VENV_EXECUTOR
 else:
-    from tests.ServerContext import ServerContext
+    from tests.ServerContext import ServerContext, APP_FILE, VENV_EXECUTOR
 
 
 URL = f'http://{config.HOST}:{config.PORT}'
 
-VENV_EXECUTOR = os.getcwd() + r'\venv\Scripts\python.exe'
-APP_FILE = 'app.py'
 
 def random_string(num_letters: int) -> str:
 	alphabet = 'qwertyuiopasdfghjklzxcvbnm'
