@@ -22,6 +22,7 @@ dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, 
 """
 
 there's gotta be a better way to organize this right?
+perhaps I could learn how to use blueprints and stuff like that
 
 TODO: actual authentication, temporarily just use cookies for now
 TODO: update database so that there is only unique emails ( also just reset every table, there is a lot of garbage in there)
