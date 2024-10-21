@@ -24,7 +24,7 @@ dbConn = DBWrapper.get_dbConn(config.EndPoint, config.PortNum, config.Username, 
 there's gotta be a better way to organize this right?
 
 TODO: actual authentication, temporarily just use cookies for now
-TODO: update database so that there is only unique emails
+TODO: update database so that there is only unique emails ( also just reset every table, there is a lot of garbage in there)
 
 https://www.pythonlore.com/sending-responses-in-flask-with-response-objects/ 
 https://vivekmolkar.com/posts/working-with-flasks-request-and-response-objects/
