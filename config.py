@@ -5,7 +5,7 @@ import os
 
 # TODO: for deployment change host to 0.0.0.0
 HOST = '127.0.0.1'
-PORT = 5000
+PORT = 8000
 SECRET_KEY = 'fdasf'
 
 config_file = 'AppConfig.ini'

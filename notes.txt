@@ -1,3 +1,9 @@
 https://stackoverflow.com/questions/10434599/get-the-data-received-in-a-flask-request
 
 to put a request status code, return a tuple of (response, status)
+
+
+
+html escaping
+https://labex.io/tutorials/secure-html-rendering-with-flask-148875
+

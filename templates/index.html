@@ -6,17 +6,29 @@
 	<head>
 
 
+			<script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
 
-		<style>
-			.centered {
-				align-content: center;
-				align-items: center;
-			}
-		</style>
+			<!-- <script>
+
+				async function getHeartBeat() {
+					console.log("inside script");
+					var res = await fetch("/heartbeat");
+					res = await res.text();
+
+					console.log(`Hello there ${res}`);
+				}
+
+				getHeartBeat().then(() => { console.log("Wahoo"); });
+
+				heart_beat().them(() => { console.log("finished"); });
+
+				
+			</script> -->
+
 	</head>
 
 
-	<body>
+	<body onload="initialize()">
 
 		
 		<nav>
@@ -41,10 +53,18 @@
 		
 			<h1>Clood to do App</h1>
 			<p>By Anthony Alvarez</p>
-			<p>Made with Python and Flask, hosted on AWS</p>
+			<p>Made with Python and Flask</p>
 		
 		
 		</div>
+
+
+		<div id="beat">
+
+
+		</div>
+
+		<div id="allusers"></div>
 
 	</body>
 
